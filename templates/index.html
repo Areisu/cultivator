@@ -40,15 +40,32 @@
             margin-right: 20px; 
         }
 
+        .add-button-container {
+            border: 1px solid #ccc;
+            width: calc(25% - 20px); /* Match the width of the grid items */
+            height: 200px; /* Match the height of the grid items */
+            box-sizing: border-box;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0; /* Remove top margin to align it with the grid items */
+            margin-left: 0; /* Remove left margin to align it with the grid items */
+            margin-right: 20px; /* Add margin to align it with the grid items */
+            text-decoration: none;
+        }
+
         .add-button {
             font-size: 48px;
             line-height: 1;
-            text-decoration: none; 
-            color: black; 
+            font-weight: bold; /* Make the "+" symbol bold */
+            color: rgb(95, 94, 94)
         }
 
         .add-button-container:hover {
             background-color: #f5f5f5;
+            text-decoration: none;
         }
     </style>
 </head>

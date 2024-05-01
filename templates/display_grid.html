@@ -1,30 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Display Crop Grid</title>
+    <title>Display Grid with Crops</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+z5vIOI8y0t2IgrLry5Yksx6Z2Go2/K65K5bwDf" crossorigin="anonymous">
+
+    <style>
+        /* Center the grid layout */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ensure the body takes up at least the full height of the viewport */
+            margin: 0; /* Remove default body margin */
+            font-family: Arial, sans-serif;
+        }
+
+        /* Grid styling */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat({{ grid[1] }}, 40px); /* Number of columns based on grid width */
+            grid-template-rows: repeat({{ grid[2] }}, 40px); /* Number of rows based on grid height */
+            gap: 2px;
+            margin-right: 20px; /* Add margin to align it with the crop menu */
+        }
+
+        .grid-cell {
+            width: 40px; /* Adjust cell width as needed */
+            height: 40px; /* Adjust cell height as needed */
+            border: 1px solid #ccc;
+            cursor: pointer;
+            position: relative; /* Required for absolute positioning of crops */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .crop {
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .crop-icon {
+            font-size: 20px;
+            color: green; /* Adjust crop icon color as needed */
+        }
+
+        /* Crop menu styling */
+        .crop-menu {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .crop-item {
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>Crop Grid Preset #{{ grid[0] }}</h1>
-    <p>Width: {{ grid[1] }}, Height: {{ grid[2] }}</p>
-    <p>Crops: {{ grid[3] }}</p>
+    <div class="grid-container">
+        <!-- Generate grid cells using a loop -->
+        {% for i in range(grid[1] * grid[2]) %}
+            <div class="grid-cell"></div>
+        {% endfor %}
+    </div>
 
-    <!-- Add Crop Form -->
-    <form action="" method="POST">
-        <label for="crop">Add Crop:</label>
-        <select name="crop" id="crop">
-            {% for crop in crops %}
-                <option value="{{ crop }}">{{ crop }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Add</button>
-    </form>
+    <!-- Crop menu -->
+    <div class="crop-menu">
+        <div class="crop-item" data-crop="tomato"><i class="fas fa-leaf"></i> Tomato</div>
+        <!-- Add more crop items as needed -->
+    </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <!-- Script for interactive functionality -->
+    <script>
+        // Function to handle cell click event
+        function toggleCrop(event) {
+            const cell = event.target.closest('.grid-cell');
+            if (!cell) return; // If the click didn't happen on a grid cell, return early
+
+            const cropType = document.querySelector('.selected-crop').dataset.crop;
+            const existingCrop = cell.querySelector('.crop');
+
+            // If there's already a crop in the cell, remove it
+            if (existingCrop) {
+                existingCrop.remove();
+            }
+
+            // Add the crop to the cell
+            const crop = document.createElement('div');
+            crop.classList.add('crop');
+            const icon = document.createElement('i');
+            icon.classList.add('fas', 'fa-leaf'); // Change to the appropriate icon class
+            icon.style.color = 'green'; // Adjust icon color as needed
+            crop.appendChild(icon);
+            cell.appendChild(crop);
+        }
+
+        // Add event listeners to all grid cells
+        const gridCells = document.querySelectorAll('.grid-cell');
+        gridCells.forEach(cell => {
+            cell.addEventListener('click', toggleCrop);
+        });
+
+        // Add event listener to crop menu items
+        const cropItems = document.querySelectorAll('.crop-item');
+        cropItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove selected class from all items
+                cropItems.forEach(item => item.classList.remove('selected-crop'));
+                // Add selected class to the clicked item
+                item.classList.add('selected-crop');
+            });
+        });
+    </script>
 </body>
 </html>

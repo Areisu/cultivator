@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Display Crop Grid</title>
+</head>
+<body>
+    <h1>Crop Grid Preset #{{ grid[0] }}</h1>
+    <p>Width: {{ grid[1] }}, Height: {{ grid[2] }}</p>
+    <p>Crops: {{ grid[3] }}</p>
+
+    <!-- Add Crop Form -->
+    <form action="" method="POST">
+        <label for="crop">Add Crop:</label>
+        <select name="crop" id="crop">
+            {% for crop in crops %}
+                <option value="{{ crop }}">{{ crop }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Add</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
