@@ -21,8 +21,7 @@ def init_db():
         c.execute('''CREATE TABLE IF NOT EXISTS crop_grids (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         width INTEGER NOT NULL,
-                        height INTEGER NOT NULL,
-                        crops TEXT NOT NULL
+                        height INTEGER NOT NULL
                      )''')
         c.execute('''CREATE TABLE IF NOT EXISTS available_crops (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,10 +50,9 @@ def add_grid():
     if request.method == 'POST':
         width = int(request.form['width'])
         height = int(request.form['height'])
-        crops = request.form['crops']
         db = get_db()
         c = db.cursor()
-        c.execute('''INSERT INTO crop_grids (width, height, crops) VALUES (?, ?, ?)''', (width, height, crops))
+        c.execute('''INSERT INTO crop_grids (width, height) VALUES (?, ?)''', (width, height))
         db.commit()
         flash('Grid has been successfully created.', 'success')
         return redirect(url_for('index'))
@@ -68,18 +66,17 @@ def display_grid(grid_id):
     # Retrieve the grid details
     c.execute('''SELECT * FROM crop_grids WHERE id = ?''', (grid_id,))
     grid = c.fetchone()
-    
-    # Retrieve available crops
-    c.execute('''SELECT crop_name FROM available_crops''')
-    crops = [row[0] for row in c.fetchall()]
 
-    if request.method == 'POST':
-        selected_crop = request.form['crop']
-        new_crops = grid[3] + ', ' + selected_crop if grid[3] else selected_crop
-        c.execute('''UPDATE crop_grids SET crops = ? WHERE id = ?''', (new_crops, grid_id))
-        db.commit()
+    return render_template('display_grid.html', grid=grid)
 
-    return render_template('display_grid.html', grid=grid, crops=crops)
+@app.route('/delete_grid/<int:grid_id>', methods=['POST'])
+def delete_grid(grid_id):
+    db = get_db()
+    c = db.cursor()
+    c.execute('''DELETE FROM crop_grids WHERE id = ?''', (grid_id,))
+    db.commit()
+    flash('Grid has been successfully deleted.', 'success')
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
