@@ -1,4 +1,4 @@
-# Cultivator (An interactive cultivation planner)
+# Cultivator (An interactive cultivation/irrigation planner)
 
 **Author: Alex Giang (alex.giang@sjsu.edu)**  
 **Status: WIP (15%)**
@@ -6,6 +6,14 @@
 # Overview
 A website/tool for cultivating w/ guides & tips, programmed in [Python](https://en.wikipedia.org/wiki/Python_(programming_language)).  
 This application will cover "Web Development".  
+
+# To-DO List
+* App Header/Logo that redirects to the homepage (index.html)
+* Store crops in their grid cell, with the function to add/edit/delete/replace
+* Add a timer option for the grid cell
+* Add tips/info box when clicking on the specific crop's grid cell
+* Replace the crop words with an actual icon representation
+* More to be listed...
 
 # Functionality/Who is it for?
 * In this application, the user creates a field size (ex: 2x2, 3x4, etc.) and can add a limited list of plants/crops to each square plot. You can view each plant individually before adding which will show details like how long it will take to be fully grown, benefits from it pair growing with other plants and etc. Additionally, each field created has settings for the user to set the soil type, climate, environment and/or weather to give best accurate guidance for growing the specific plant.
