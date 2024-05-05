@@ -1,7 +1,7 @@
 # Cultivator (An interactive cultivation planner)
 
 **Author: Alex Giang (alex.giang@sjsu.edu)**  
-**Status: WIP**
+**Status: WIP (15%)**
 
 # Overview
 A website/tool for cultivating w/ guides & tips, programmed in [Python](https://en.wikipedia.org/wiki/Python_(programming_language)).  
