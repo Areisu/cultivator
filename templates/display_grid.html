@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Display Grid with Crops</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+z5vIOI8y0t2IgrLry5Yksx6Z2Go2/K65K5bwDf" crossorigin="anonymous">
-
+    <title>Display Grid</title>
     <style>
         /* Center the grid layout */
         body {
@@ -18,44 +16,45 @@
         /* Grid styling */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat({{ grid[1] }}, 40px); /* Number of columns based on grid width */
-            grid-template-rows: repeat({{ grid[2] }}, 40px); /* Number of rows based on grid height */
+            grid-template-columns: repeat({{ width }}, 40px); /* Set width of each column */
+            grid-template-rows: repeat({{ height }}, 40px); /* Set height of each row */
             gap: 2px;
-            margin-right: 20px; /* Add margin to align it with the crop menu */
+            margin-right: 20px; /* Add margin to align it with other elements */
         }
 
         .grid-cell {
+            position: relative;
             width: 40px; /* Adjust cell width as needed */
             height: 40px; /* Adjust cell height as needed */
             border: 1px solid #ccc;
             cursor: pointer;
-            position: relative; /* Required for absolute positioning of crops */
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        .crop {
-            position: absolute;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: absolute; /* Position modal absolute */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 1;
         }
 
-        .crop-icon {
-            font-size: 20px;
-            color: green; /* Adjust crop icon color as needed */
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 200px; /* Set modal width */
+            position: absolute; /* Position modal content absolute */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center modal content */
         }
 
-        /* Crop menu styling */
-        .crop-menu {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .crop-item {
-            margin-bottom: 10px;
+        .menu-item {
+            margin-bottom: 10px; /* Add margin between menu items */
             cursor: pointer;
         }
     </style>
@@ -63,56 +62,73 @@
 <body>
     <div class="grid-container">
         <!-- Generate grid cells using a loop -->
-        {% for i in range(grid[1] * grid[2]) %}
-            <div class="grid-cell"></div>
+        {% for i in range(height) %}
+            {% for j in range(width) %}
+                <div class="grid-cell">
+                    <!-- Check if cell content exists in cell_contents dictionary -->
+                    {% if (i, j) in cell_contents %}
+                        {{ cell_contents[(i, j)] }}
+                    {% endif %}
+                    <div class="modal">
+                        <div class="modal-content">
+                            <!-- Menu items -->
+                            <div class="menu-item">Tomatoes</div>
+                            <div class="menu-item">Cherries</div>
+                            <!-- Add more menu items as needed -->
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         {% endfor %}
     </div>
 
-    <!-- Crop menu -->
-    <div class="crop-menu">
-        <div class="crop-item" data-crop="tomato"><i class="fas fa-leaf"></i> Tomato</div>
-        <!-- Add more crop items as needed -->
-    </div>
-
-    <!-- Script for interactive functionality -->
     <script>
-        // Function to handle cell click event
-        function toggleCrop(event) {
-            const cell = event.target.closest('.grid-cell');
-            if (!cell) return; // If the click didn't happen on a grid cell, return early
-
-            const cropType = document.querySelector('.selected-crop').dataset.crop;
-            const existingCrop = cell.querySelector('.crop');
-
-            // If there's already a crop in the cell, remove it
-            if (existingCrop) {
-                existingCrop.remove();
-            }
-
-            // Add the crop to the cell
-            const crop = document.createElement('div');
-            crop.classList.add('crop');
-            const icon = document.createElement('i');
-            icon.classList.add('fas', 'fa-leaf'); // Change to the appropriate icon class
-            icon.style.color = 'green'; // Adjust icon color as needed
-            crop.appendChild(icon);
-            cell.appendChild(crop);
-        }
-
-        // Add event listeners to all grid cells
-        const gridCells = document.querySelectorAll('.grid-cell');
-        gridCells.forEach(cell => {
-            cell.addEventListener('click', toggleCrop);
+        // Add event listener to each grid cell
+        document.querySelectorAll('.grid-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                // Toggle the visibility of the modal associated with this cell
+                const modal = this.querySelector('.modal');
+                modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+            });
         });
 
-        // Add event listener to crop menu items
-        const cropItems = document.querySelectorAll('.crop-item');
-        cropItems.forEach(item => {
-            item.addEventListener('click', () => {
-                // Remove selected class from all items
-                cropItems.forEach(item => item.classList.remove('selected-crop'));
-                // Add selected class to the clicked item
-                item.classList.add('selected-crop');
+        // Add event listener to each menu item
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const selectedItem = this.textContent; // Get the selected item
+                const modal = this.closest('.modal'); // Find the modal containing this item
+                const gridCell = modal.parentElement; // Find the grid cell containing this modal
+                const gridId = gridCell.dataset.gridId; // Get the grid ID
+                const cellContent = selectedItem; // Set the new content for the grid cell
+
+                // Send an AJAX request to update the grid cell in the database
+                fetch('/update_grid_cell', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        grid_id: gridId,
+                        cell_content: cellContent
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Optionally, handle success response
+                    console.log('Grid cell updated successfully');
+                })
+                .catch(error => {
+                    console.error('Error updating grid cell:', error);
+                    // Optionally, display an error message to the user
+                });
+
+                // Update the content of the grid cell immediately (optimistic update)
+                gridCell.textContent = cellContent;
+
+                // Hide the modal
+                modal.style.display = 'none';
             });
         });
     </script>

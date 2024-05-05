@@ -20,6 +20,28 @@
             text-decoration: none;
             color: black;
             text-align: center;
+            position: relative; /* Make grid items relative */
+            overflow: hidden;
+        }
+
+        .grid-item:hover .menu {
+            display: block; /* Show menu when hovering over grid item */
+        }
+
+        .grid-item .menu {
+            display: none; /* Hide menu by default */
+            position: absolute; /* Position menu */
+            bottom: 0px; /* Align menu vertically */
+            left: 50%; /* Align menu horizontally */
+            transform: translate(-50%, -50%); /* Center menu */
+        }
+
+        .grid-item h2 {
+            margin-bottom: 5px;
+        }
+
+        .grid-item p {
+            margin-bottom: 15px;
         }
 
         .grid-item:hover {
@@ -27,19 +49,20 @@
         }
 
         .add-button-container {
-            border: 1px solid #ccc;
+            position: absolute; /* Position absolute for precise placement */
+            text-decoration: none;
+            cursor: pointer;
             width: calc(25% - 20px); /* Match the width of the grid items */
             height: 200px; /* Match the height of the grid items */
             box-sizing: border-box;
             text-align: center;
-            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 0; /* Remove top margin to align it with the grid items */
-            margin-left: 0; /* Remove left margin to align it with the grid items */
-            margin-right: 20px; /* Add margin to align it with the grid items */
-            text-decoration: none;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
         }
 
         .add-button {
@@ -56,6 +79,10 @@
 
         .menu {
             display: none;
+        }
+
+        .menu button {
+            margin: 5px; /* Add spacing between buttons */
         }
 
         /* Modal styles */
@@ -102,12 +129,11 @@
     <div class="grid-container">
         {% for grid in grids %}
             <div class="grid-item" id="grid{{ grid[0] }}">
-                <h2>Grid Preset #{{ grid[0] }}</h2>
-                <p>Width: {{ grid[1] }} | Height: {{ grid[2] }}</p>
-                <button class="toggle-menu">Toggle Menu</button>
-                <div class="menu" id="menu{{ grid[0] }}">
+                <h2>{{ grid[1] }}</h2> <!-- Display grid name -->
+                <p>Width: {{ grid[3] }} | Height: {{ grid[2] }}</p>
+                <div class="menu">
                     <form action="{{ url_for('display_grid', grid_id=grid[0]) }}" method="get">
-                        <button type="submit">View</button>
+                        <button type="submit">View/Edit</button>
                     </form>
                     <form action="{{ url_for('delete_grid', grid_id=grid[0]) }}" method="post">
                         <button type="submit">Delete</button>
@@ -115,6 +141,30 @@
                 </div>
             </div>
         {% endfor %}
+        <!-- "Add Grid" button container -->
+        <div class="grid-item">
+            <div class="add-button-container" id="addButton">
+                <div class="add-button">+</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal container -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Create New Grid</h2>
+            <!-- Form to input grid values -->
+            <form id="gridForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required><br><br> <!-- Add input field for grid name -->
+                <label for="width">Width:</label>
+                <input type="number" id="width" name="width" min="1" required><br><br>
+                <label for="height">Height:</label>
+                <input type="number" id="height" name="height" min="1" required><br><br>
+                <button type="submit">Create Grid</button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -128,82 +178,57 @@
                     menu.style.display = menu.style.display === "block" ? "none" : "block";
                 });
             });
-        });
-    </script>
-</body>
-</html>
 
+            // Get the modal
+            var modal = document.getElementById("myModal");
 
-        <!-- "+" Button Container -->
-        <div id="myModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Create New Grid</h2>
-                <!-- Form to input grid values -->
-                <form id="gridForm">
-                    <label for="width">Width:</label>
-                    <input type="number" id="width" name="width" min="1" required><br><br>
-                    <label for="height">Height:</label>
-                    <input type="number" id="height" name="height" min="1" required><br><br>
-                    <button type="submit">Create Grid</button>
-                </form>
-            </div>
-        </div>
-        <div class="add-button-container" id="addButton">
-            <div class="add-button">+</div>
-        </div>
-    </div>
+            // Get the button that opens the modal
+            var btn = document.getElementById("addButton");
 
-    <script>
-        // Get the modal
-        var modal = document.getElementById("myModal");
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
 
-        // Get the button that opens the modal
-        var btn = document.getElementById("addButton");
+            // When the user clicks the button, open the modal 
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
 
-        // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
-
-        // When the user clicks the button, open the modal 
-        btn.onclick = function() {
-            modal.style.display = "block";
-        }
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
                 modal.style.display = "none";
             }
-        }
-        
-        // Submit form data
-        document.getElementById("gridForm").onsubmit = function(event) {
-            event.preventDefault(); // Prevent form submission
-            var formData = new FormData(this);
 
-            fetch('{{ url_for("add_grid") }}', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
                 }
-                // Optionally, handle success response
-                console.log('Grid added successfully');
-                modal.style.display = "none"; // Close the modal
-                location.reload(); // Reload the page
-            })
-            .catch(error => {
-                console.error('Error adding grid:', error);
-                // Optionally, display an error message to the user
-            });
-        }
+            }
+            
+            // Submit form data
+            document.getElementById("gridForm").onsubmit = function(event) {
+                event.preventDefault(); // Prevent form submission
+                var formData = new FormData(this);
+
+                fetch('{{ url_for("add_grid") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Optionally, handle success response
+                    console.log('Grid added successfully');
+                    modal.style.display = "none"; // Close the modal
+                    location.reload(); // Reload the page
+                })
+                .catch(error => {
+                    console.error('Error adding grid:', error);
+                    // Optionally, display an error message to the user
+                });
+            }
+        });
     </script>
 
 </body>
