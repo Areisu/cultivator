@@ -118,6 +118,55 @@ def update_grid_cell():
 
     return 'Grid cell updated successfully', 200
 
+@app.route('/add_item', methods=['POST'])
+def add_item():
+    grid_id = request.form['grid_id']
+    row_index = request.form['row_index']
+    column_index = request.form['column_index']
+    item = request.form['item']
+
+    db = get_db()
+    c = db.cursor()
+
+    # Insert the item into the grid_cells table
+    c.execute('''INSERT INTO grid_cells (grid_id, row_index, column_index, content) VALUES (?, ?, ?, ?)''', (grid_id, row_index, column_index, item))
+    db.commit()
+
+    return 'Item added successfully', 200
+
+@app.route('/edit_item', methods=['POST'])
+def edit_item():
+    grid_id = request.form['grid_id']
+    row_index = request.form['row_index']
+    column_index = request.form['column_index']
+    item = request.form['item']
+
+    db = get_db()
+    c = db.cursor()
+
+    # Update the item in the grid_cells table
+    c.execute('''UPDATE grid_cells SET content = ? WHERE grid_id = ? AND row_index = ? AND column_index = ?''', (item, grid_id, row_index, column_index))
+    db.commit()
+
+    return 'Item edited successfully', 200
+
+@app.route('/delete_item', methods=['POST'])
+def delete_item():
+    grid_id = request.form['grid_id']
+    row_index = request.form['row_index']
+    column_index = request.form['column_index']
+
+    db = get_db()
+    c = db.cursor()
+
+    # Delete the item from the grid_cells table
+    c.execute('''DELETE FROM grid_cells WHERE grid_id = ? AND row_index = ? AND column_index = ?''', (grid_id, row_index, column_index))
+    db.commit()
+
+    return 'Item deleted successfully', 200
+
+
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)

@@ -28,6 +28,9 @@
             height: 40px; /* Adjust cell height as needed */
             border: 1px solid #ccc;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Modal styles */
@@ -53,8 +56,39 @@
             transform: translate(-50%, -50%); /* Center modal content */
         }
 
-        .menu-item {
-            margin-bottom: 10px; /* Add margin between menu items */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #fefefe;
+            min-width: 160px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 5px;
+            right: 10px;
             cursor: pointer;
         }
     </style>
@@ -71,13 +105,20 @@
                     {% endif %}
                     <div class="modal">
                         <div class="modal-content">
-                            <!-- Menu Items -->
-                            <div class="menu-item">Tomatoes</div>
-                            <div class="menu-item">Cherries</div>
-                            <div class="menu-item">Persimmons</div>
-                            <div class="menu-item">Oranges</div>
-                            <div class="menu-item">Lemons</div>
-                            <!-- Add more menu items as needed -->
+                            <span class="close-modal">&times;</span> <!-- Close button -->
+                            <!-- Dropdown menu -->
+                            <div class="dropdown">
+                                <button class="dropbtn">— Select Crop —  ▼</button>
+                                <div class="dropdown-content">
+                                    <a class="menu-item" data-value="Tomatoes">Tomatoes</a>
+                                    <a class="menu-item" data-value="Cherries">Cherries</a>
+                                    <a class="menu-item" data-value="Persimmons">Persimmons</a>
+                                    <a class="menu-item" data-value="Oranges">Oranges</a>
+                                    <a class="menu-item" data-value="Lemons">Lemons</a>
+                                    <!-- Add more menu items as needed -->
+                                </div>
+                            </div>
+                            <button class="delete-btn">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -89,16 +130,32 @@
         // Add event listener to each grid cell
         document.querySelectorAll('.grid-cell').forEach(cell => {
             cell.addEventListener('click', function() {
-                // Toggle the visibility of the modal associated with this cell
+                // Hide all modals first
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.style.display = 'none';
+                });
+
+                // Show the modal associated with this cell
                 const modal = this.querySelector('.modal');
-                modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+                modal.style.display = 'block';
+            });
+        });
+
+        // Add event listener to each close button
+        document.querySelectorAll('.close-modal').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent event propagation to parent elements
+
+                // Hide the modal containing this close button
+                const modal = this.closest('.modal');
+                modal.style.display = 'none';
             });
         });
 
         // Add event listener to each menu item
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', function() {
-                const selectedItem = this.textContent; // Get the selected item
+                const selectedItem = this.getAttribute('data-value'); // Get the selected item
                 const modal = this.closest('.modal'); // Find the modal containing this item
                 const gridCell = modal.parentElement; // Find the grid cell containing this modal
                 const gridId = gridCell.dataset.gridId; // Get the grid ID
@@ -135,6 +192,50 @@
                 gridCell.textContent = cellContent;
 
                 // Hide the modal
+                modal.style.display = 'none';
+            });
+        });
+
+        // Add event listener to each delete button
+        document.querySelectorAll('.delete-btn').forEach(deleteBtn => {
+            deleteBtn.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent event propagation to parent elements
+
+                // Find the grid cell containing this delete button
+                const gridCell = this.closest('.grid-cell');
+                const gridId = gridCell.dataset.gridId; // Get the grid ID
+                const row = gridCell.dataset.row; // Get the row index
+                const column = gridCell.dataset.column; // Get the column index
+
+                // Send an AJAX request to delete the content of the grid cell in the database
+                fetch('/delete_grid_cell', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        grid_id: gridId,
+                        row_index: row,
+                        column_index: column
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Optionally, handle success response
+                    console.log('Grid cell deleted successfully');
+                })
+                .catch(error => {
+                    console.error('Error deleting grid cell:', error);
+                    // Optionally, display an error message to the user
+                });
+
+                // Update the content of the grid cell immediately (optimistic update)
+                gridCell.textContent = '';
+
+                // Hide the modal
+                const modal = gridCell.querySelector('.modal');
                 modal.style.display = 'none';
             });
         });
