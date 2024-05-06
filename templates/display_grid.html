@@ -64,16 +64,19 @@
         <!-- Generate grid cells using a loop -->
         {% for i in range(height) %}
             {% for j in range(width) %}
-                <div class="grid-cell">
+                <div class="grid-cell" data-row="{{ i }}" data-column="{{ j }}" data-grid-id="{{ grid_id }}">
                     <!-- Check if cell content exists in cell_contents dictionary -->
                     {% if (i, j) in cell_contents %}
                         {{ cell_contents[(i, j)] }}
                     {% endif %}
                     <div class="modal">
                         <div class="modal-content">
-                            <!-- Menu items -->
+                            <!-- Menu Items -->
                             <div class="menu-item">Tomatoes</div>
                             <div class="menu-item">Cherries</div>
+                            <div class="menu-item">Persimmons</div>
+                            <div class="menu-item">Oranges</div>
+                            <div class="menu-item">Lemons</div>
                             <!-- Add more menu items as needed -->
                         </div>
                     </div>
@@ -99,6 +102,8 @@
                 const modal = this.closest('.modal'); // Find the modal containing this item
                 const gridCell = modal.parentElement; // Find the grid cell containing this modal
                 const gridId = gridCell.dataset.gridId; // Get the grid ID
+                const row = gridCell.dataset.row; // Get the row index
+                const column = gridCell.dataset.column; // Get the column index
                 const cellContent = selectedItem; // Set the new content for the grid cell
 
                 // Send an AJAX request to update the grid cell in the database
@@ -109,6 +114,8 @@
                     },
                     body: new URLSearchParams({
                         grid_id: gridId,
+                        row_index: row,
+                        column_index: column,
                         cell_content: cellContent
                     })
                 })

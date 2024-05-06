@@ -34,8 +34,6 @@ def init_db():
                      )''')
         db.commit()
 
-
-
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -51,8 +49,6 @@ def index():
 
     return render_template('index.html', grids=grids)
 
-
-
 @app.route('/add_grid', methods=['GET', 'POST'])
 def add_grid():
     if request.method == 'POST':
@@ -66,8 +62,6 @@ def add_grid():
         flash('Grid has been successfully created.', 'success')
         return redirect(url_for('index'))
     return render_template('add_grid.html')
-
-from flask import render_template
 
 @app.route('/display_grid/<int:grid_id>', methods=['GET', 'POST'])
 def display_grid(grid_id):
@@ -88,7 +82,7 @@ def display_grid(grid_id):
     # Create a dictionary to store cell contents using (row, column) as keys
     cell_contents = {(cell[0], cell[1]): cell[2] for cell in cells}
 
-    return render_template('display_grid.html', width=width, height=height, cell_contents=cell_contents)
+    return render_template('display_grid.html', width=width, height=height, cell_contents=cell_contents, grid_id=grid_id)
 
 
 @app.route('/delete_grid/<int:grid_id>', methods=['POST'])
@@ -100,7 +94,6 @@ def delete_grid(grid_id):
     flash('Grid has been successfully deleted.', 'success')
     return redirect(url_for('index'))
 
-# Add a new route to update grid cells
 @app.route('/update_grid_cell', methods=['POST'])
 def update_grid_cell():
     grid_id = request.form['grid_id']
@@ -111,24 +104,19 @@ def update_grid_cell():
     db = get_db()
     c = db.cursor()
 
-    # Update the content of the grid cell in the database
-    c.execute('''INSERT INTO grid_cells (grid_id, row_index, column_index, content)
-                 VALUES (?, ?, ?, ?)''', (grid_id, row_index, column_index, cell_content))
+    # Check if the grid cell already exists
+    c.execute('''SELECT * FROM grid_cells WHERE grid_id = ? AND row_index = ? AND column_index = ?''', (grid_id, row_index, column_index))
+    existing_cell = c.fetchone()
+
+    if existing_cell:
+        # Update existing grid cell content
+        c.execute('''UPDATE grid_cells SET content = ? WHERE id = ?''', (cell_content, existing_cell[0]))
+    else:
+        # Insert new grid cell content
+        c.execute('''INSERT INTO grid_cells (grid_id, row_index, column_index, content) VALUES (?, ?, ?, ?)''', (grid_id, row_index, column_index, cell_content))
     db.commit()
 
     return 'Grid cell updated successfully', 200
-
-@app.route('/get_grid_cells/<int:grid_id>')
-def get_grid_cells(grid_id):
-    db = get_db()
-    c = db.cursor()
-    c.execute('''SELECT row_index, column_index, cell_content
-                 FROM grid_cells
-                 WHERE grid_id = ?''', (grid_id,))
-    cells = c.fetchall()
-
-    return {'cells': cells}, 200
-
 
 if __name__ == '__main__':
     init_db()
