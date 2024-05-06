@@ -140,7 +140,7 @@
         {% for grid in grids %}
             <div class="grid-item" id="grid{{ grid[0] }}">
                 <h2>{{ grid[1] }}</h2> <!-- Display grid name -->
-                <p>Width: {{ grid[3] }} | Height: {{ grid[2] }}</p>
+                <p>Width: {{ grid[2] }} | Height: {{ grid[3] }}</p>
                 <div class="menu">
                     <form action="{{ url_for('display_grid', grid_id=grid[0]) }}" method="get">
                         <button type="submit">View/Edit</button>

@@ -72,8 +72,8 @@ def display_grid(grid_id):
     c.execute('''SELECT * FROM crop_grids WHERE id = ?''', (grid_id,))
     grid = c.fetchone()
     
-    width = grid[3]  # Assuming width is at index 3 in the database
-    height = grid[2]  # Assuming height is at index 2 in the database
+    width = grid[2]  # width is index 3 in the DB table
+    height = grid[3]  # height is index 2 in the DB table
 
     # Retrieve the grid cells
     c.execute('''SELECT row_index, column_index, content FROM grid_cells WHERE grid_id = ?''', (grid_id,))
@@ -150,8 +150,8 @@ def edit_item():
 
     return 'Item edited successfully', 200
 
-@app.route('/delete_item', methods=['POST'])
-def delete_item():
+@app.route('/delete_grid_cell', methods=['POST'])
+def delete_grid_cell ():
     grid_id = request.form['grid_id']
     row_index = request.form['row_index']
     column_index = request.form['column_index']
