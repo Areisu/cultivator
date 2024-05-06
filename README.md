@@ -15,7 +15,7 @@ This application will cover "Web Development".
 
 # To-DO List
 * App Header/Logo that redirects to the homepage (index.html)
-* ~~Store crops in their grid cell,~~ with the function to add/edit/delete/replace
+* ~~Store crops in their grid cell, with the function to add/edit/delete~~
 * Add a timer option for the grid cell
 * Add tips/info box when clicking on the specific crop's grid cell
 * Replace the crop words with an actual icon representation
