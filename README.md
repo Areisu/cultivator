@@ -14,7 +14,7 @@ This application will cover "Web Development".
 * Not only does it help with users who are experienced with cultivating, but it will also help users who are new to growing their plants as it will provide tips and guide the user with step-by-step instructions.
 
 # To-DO List
-* App Header/Logo that redirects to the homepage (index.html)
+* App Header/Logo ~~that redirects to the homepage (index.html)~~
 * ~~Store crops in their grid cell, with the function to add/edit/delete~~
 * Add a timer option for the grid cell
 * Add tips/info box when clicking on the specific crop's grid cell
