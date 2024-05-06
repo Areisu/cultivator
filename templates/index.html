@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Crop Grids</title>
+    <title>Cultivator - Irrigation/Cultivation Management Tool</title>
     <style>
         /* Flexbox styling */
         .grid-container {
@@ -121,10 +121,20 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        /* Clock styles */
+        #clock {
+            position: absolute;
+            top: 28px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <h1>Cultivator: Crop Grids</h1>
+    <h1>Cultivator</h1>
+    <div id="clock"></div> <!-- Display system clock -->
     <!-- Display Grids -->
     <div class="grid-container">
         {% for grid in grids %}
@@ -168,9 +178,27 @@
     </div>
 
     <script>
+        // Function to update the clock display
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours().toString().padStart(2, '0');
+            var minutes = now.getMinutes().toString().padStart(2, '0');
+            var offset = -(now.getTimezoneOffset() / 60); // Get UTC offset in hours
+    
+            // Format the offset with '+' or '-' sign
+            var offsetString = (offset >= 0 ? '+' : '') + offset.toString();
+    
+            // Display the time in HH:MM (UTC+/-x) format
+            var clockString = hours + ':' + minutes + ' (UTC' + offsetString + ')';
+            document.getElementById('clock').textContent = clockString;
+        }
+    
+        // Update clock every second
+        setInterval(updateClock, 1000);
+    
         document.addEventListener("DOMContentLoaded", function() {
             const toggleButtons = document.querySelectorAll(".toggle-menu");
-
+    
             toggleButtons.forEach(function(button) {
                 button.addEventListener("click", function() {
                     const gridId = this.parentElement.id.replace("grid", "");
@@ -178,26 +206,26 @@
                     menu.style.display = menu.style.display === "block" ? "none" : "block";
                 });
             });
-
+    
             // Get the modal
             var modal = document.getElementById("myModal");
-
+    
             // Get the button that opens the modal
             var btn = document.getElementById("addButton");
-
+    
             // Get the <span> element that closes the modal
             var span = document.getElementsByClassName("close")[0];
-
+    
             // When the user clicks the button, open the modal 
             btn.onclick = function() {
                 modal.style.display = "block";
             }
-
+    
             // When the user clicks on <span> (x), close the modal
             span.onclick = function() {
                 modal.style.display = "none";
             }
-
+    
             // When the user clicks anywhere outside of the modal, close it
             window.onclick = function(event) {
                 if (event.target == modal) {
@@ -209,7 +237,7 @@
             document.getElementById("gridForm").onsubmit = function(event) {
                 event.preventDefault(); // Prevent form submission
                 var formData = new FormData(this);
-
+    
                 fetch('{{ url_for("add_grid") }}', {
                     method: 'POST',
                     body: formData

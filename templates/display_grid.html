@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Display Grid</title>
+    <title id="pageTitle">Cultivator</title>
     <style>
         /* Center the grid layout */
         body {
@@ -11,6 +11,24 @@
             min-height: 100vh; /* Ensure the body takes up at least the full height of the viewport */
             margin: 0; /* Remove default body margin */
             font-family: Arial, sans-serif;
+        }
+
+        /* Header styling */
+        .header a {
+            position: absolute;
+            top: 0px;
+            left: 10px;
+            text-decoration: none; /* Remove underline */
+            color: inherit; /* Inherit color from parent */
+        }
+
+        /* Clock styles */
+        #clock {
+            position: absolute;
+            top: 28px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
         }
 
         /* Grid styling */
@@ -91,9 +109,16 @@
             right: 10px;
             cursor: pointer;
         }
+
     </style>
 </head>
 <body>
+    <!-- Header -->
+    <div class="header">
+        <a href=".."><h1>Cultivator</h1></a>
+    </div>
+    <!-- System Clock -->
+    <div class="clock" id="clock"></div>
     <div class="grid-container">
         <!-- Generate grid cells using a loop -->
         {% for i in range(height) %}
@@ -127,6 +152,27 @@
     </div>
 
     <script>
+        // Set the page title to the grid name
+        document.getElementById('pageTitle').innerText = 'Cultivator';
+
+        // Function to update the clock display
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours().toString().padStart(2, '0');
+            var minutes = now.getMinutes().toString().padStart(2, '0');
+            var offset = -(now.getTimezoneOffset() / 60); // Get UTC offset in hours
+
+            // Format the offset with '+' or '-' sign
+            var offsetString = (offset >= 0 ? '+' : '') + offset.toString();
+
+            // Display the time in HH:MM (UTC+/-x) format
+            var clockString = hours + ':' + minutes + ' (UTC' + offsetString + ')';
+            document.getElementById('clock').textContent = clockString;
+        }
+
+        // Update clock every second
+        setInterval(updateClock, 1000);
+
         // Add event listener to each grid cell
         document.querySelectorAll('.grid-cell').forEach(cell => {
             cell.addEventListener('click', function() {
@@ -239,6 +285,7 @@
                 modal.style.display = 'none';
             });
         });
+
     </script>
 </body>
 </html>
