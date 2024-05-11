@@ -49,6 +49,7 @@ def index():
 
     return render_template('index.html', grids=grids)
 
+# Creating a new grid, with HTML form
 @app.route('/add_grid', methods=['GET', 'POST'])
 def add_grid():
     if request.method == 'POST':
@@ -85,6 +86,7 @@ def display_grid(grid_id):
     return render_template('display_grid.html', width=width, height=height, cell_contents=cell_contents, grid_id=grid_id)
 
 
+# Removes existing grid from the DB
 @app.route('/delete_grid/<int:grid_id>', methods=['POST'])
 def delete_grid(grid_id):
     db = get_db()
@@ -94,6 +96,7 @@ def delete_grid(grid_id):
     flash('Grid has been successfully deleted.', 'success')
     return redirect(url_for('index'))
 
+# Updating a grid cell with an item/element
 @app.route('/update_grid_cell', methods=['POST'])
 def update_grid_cell():
     grid_id = request.form['grid_id']
@@ -118,38 +121,7 @@ def update_grid_cell():
 
     return 'Grid cell updated successfully', 200
 
-@app.route('/add_item', methods=['POST'])
-def add_item():
-    grid_id = request.form['grid_id']
-    row_index = request.form['row_index']
-    column_index = request.form['column_index']
-    item = request.form['item']
-
-    db = get_db()
-    c = db.cursor()
-
-    # Insert the item into the grid_cells table
-    c.execute('''INSERT INTO grid_cells (grid_id, row_index, column_index, content) VALUES (?, ?, ?, ?)''', (grid_id, row_index, column_index, item))
-    db.commit()
-
-    return 'Item added successfully', 200
-
-@app.route('/edit_item', methods=['POST'])
-def edit_item():
-    grid_id = request.form['grid_id']
-    row_index = request.form['row_index']
-    column_index = request.form['column_index']
-    item = request.form['item']
-
-    db = get_db()
-    c = db.cursor()
-
-    # Update the item in the grid_cells table
-    c.execute('''UPDATE grid_cells SET content = ? WHERE grid_id = ? AND row_index = ? AND column_index = ?''', (item, grid_id, row_index, column_index))
-    db.commit()
-
-    return 'Item edited successfully', 200
-
+# TODO: Problem - After adding a item into grid cell, unable to open menu to edit/remove grid cell until page is refreshed.
 @app.route('/delete_grid_cell', methods=['POST'])
 def delete_grid_cell ():
     grid_id = request.form['grid_id']

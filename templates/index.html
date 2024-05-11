@@ -8,7 +8,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            position: relative; /* Make grid container relative */
+            position: relative; 
         }
 
         .grid-item {
@@ -20,20 +20,21 @@
             text-decoration: none;
             color: black;
             text-align: center;
-            position: relative; /* Make grid items relative */
+            position: relative; 
             overflow: hidden;
         }
 
+        /* Show menu when hovering over grid item */
         .grid-item:hover .menu {
-            display: block; /* Show menu when hovering over grid item */
+            display: block; 
         }
 
         .grid-item .menu {
             display: none; /* Hide menu by default */
-            position: absolute; /* Position menu */
-            bottom: 0px; /* Align menu vertically */
-            left: 50%; /* Align menu horizontally */
-            transform: translate(-50%, -50%); /* Center menu */
+            position: absolute; 
+            bottom: 0px; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
         }
 
         .grid-item h2 {
@@ -49,11 +50,11 @@
         }
 
         .add-button-container {
-            position: absolute; /* Position absolute for precise placement */
+            position: absolute; 
             text-decoration: none;
             cursor: pointer;
-            width: calc(25% - 20px); /* Match the width of the grid items */
-            height: 200px; /* Match the height of the grid items */
+            width: calc(25% - 20px); 
+            height: 200px; 
             box-sizing: border-box;
             text-align: center;
             display: flex;
@@ -68,7 +69,7 @@
         .add-button {
             font-size: 48px;
             line-height: 1;
-            font-weight: bold; /* Make the "+" symbol bold */
+            font-weight: bold; 
             color: rgb(95, 94, 94)
         }
 
@@ -82,29 +83,29 @@
         }
 
         .menu button {
-            margin: 5px; /* Add spacing between buttons */
+            margin: 5px; 
         }
 
         /* Modal styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
             padding-top: 60px;
         }
 
         .modal-content {
             background-color: #fefefe;
-            margin: 5% auto; /* 5% from the top and centered */
+            margin: 5% auto; 
             padding: 20px;
             border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
+            width: 80%; 
         }
 
         /* Close button */
@@ -134,7 +135,8 @@
 </head>
 <body>
     <h1>Cultivator</h1>
-    <div id="clock"></div> <!-- Display system clock -->
+    <!-- Display system clock -->
+    <div id="clock"></div> 
     <!-- Display Grids -->
     <div class="grid-container">
         {% for grid in grids %}
@@ -246,14 +248,14 @@
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    // Optionally, handle success response
+                    // Handle success response
                     console.log('Grid added successfully');
                     modal.style.display = "none"; // Close the modal
                     location.reload(); // Reload the page
                 })
                 .catch(error => {
                     console.error('Error adding grid:', error);
-                    // Optionally, display an error message to the user
+                    // Displays an error message
                 });
             }
         });
